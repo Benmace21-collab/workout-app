@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Workout Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont;
+      background: #0f0f0f;
+      color: white;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      padding: 10px;
+      font-size: 22px;
+    }
+
+    .container {
+      padding: 15px;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .show {
+      display: block;
+      opacity: 1;
+    }
+
+    button {
+      width: 95%;
+      padding: 18px;
+      margin: 12px auto;
+      font-size: 18px;
+      border-radius: 14px;
+      border: none;
+      background: #1f1f1f;
+      color: white;
+    }
+
+    .big-tap {
+      height: 300px;
+      font-size: 26px;
+      background: #4CAF50;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+    }
+
+    .small-btn {
+      width: auto;
+      padding: 10px;
+      background: #444;
+    }
+
+    .reset {
+      background: #aa3333;
+    }
+
+    .progress-bar {
+      width: 90%;
+      height: 18px;
+      background: #333;
+      border-radius: 10px;
+      margin: 10px auto;
+    }
+
+    .progress {
+      height: 100%;
+      width: 0%;
+      background: #4CAF50;
+      border-radius: 10px;
+      transition: width 0.3s;
+    }
+
+    .counter {
+      font-size: 40px;
+      margin: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="top-bar">
+  <button class="small-btn" onclick="goHome()">🏠</button>
+  <button class="small-btn reset" onclick="resetAll()">🔄</button>
+</div>
+
+<h1>🏋️ Workout</h1>
+
+<div class="progress-bar">
+  <div class="progress" id="progress"></div>
+</div>
+<p id="percent">0%</p>
+
+<!-- HOME -->
+<div id="home" class="container show">
+  <button onclick="show('upper')">Upper Body</button>
+  <button onclick="show('core')">Core</button>
+  <button onclick="show('lower')">Lower Body</button>
+  <button onclick="show('cardio')">Cardio</button>
+  <button onclick="show('posture')">Posture Fix</button>
+</div>
+
+<!-- SECTIONS -->
+<div id="upper" class="container">
+  <button onclick="startCounter('Push-ups',15)">Push-ups</button>
+  <button onclick="startCounter('Incline Push-ups',15)">Incline Push-ups</button>
+</div>
+
+<div id="core" class="container">
+  <button onclick="startTimer('Plank',40)">Plank</button>
+  <button onclick="startCounter('Dead Bugs',10)">Dead Bugs</button>
+  <button onclick="startCounter('Leg Raises',12)">Leg Raises</button>
+</div>
+
+<div id="lower" class="container">
+  <button onclick="startCounter('Squats',15)">Squats</button>
+  <button onclick="startCounter('Lunges',8)">Lunges</button>
+</div>
+
+<div id="cardio" class="container">
+  <button onclick="startTimer('High Knees',30)">High Knees</button>
+  <button onclick="startTimer('Mountain Climbers',30)">Mountain Climbers</button>
+  <button onclick="startTimer('Run',600)">10 Min Run</button>
+</div>
+
+<div id="posture" class="container">
+  <button onclick="startTimer('Hip Flexor Stretch',30)">Hip Flexor Stretch</button>
+  <button onclick="startTimer('Quad Stretch',30)">Quad Stretch</button>
+  <button onclick="startCounter('Glute Bridges',15)">Glute Bridges</button>
+  <button onclick="startCounter('Bird Dogs',10)">Bird Dogs</button>
+  <button onclick="startCounter('Dead Bugs',10)">Dead Bugs</button>
+  <button onclick="startTimer('Plank',40)">Plank</button>
+</div>
+
+<!-- COUNTER -->
+<div id="counterBox" class="container">
+  <h2 id="title"></h2>
+  <div class="counter" id="counter">0/0</div>
+  <button class="big-tap" onclick="add()">TAP ANYWHERE</button>
+</div>
+
+<!-- TIMER -->
+<div id="timerBox" class="container">
+  <h2 id="timerTitle"></h2>
+  <div class="counter" id="timer">0</div>
+</div>
+
+<!-- DONE -->
+<div id="done" class="container">
+  <h2>🎉 Done!</h2>
+</div>
+
+<script>
+let count = 0;
+let max = 0;
+let timerInterval;
+
+let totalExercises = 13;
+let completed = 0;
+
+function updateProgress() {
+  let percent = Math.round((completed / totalExercises) * 100);
+  document.getElementById('progress').style.width = percent + '%';
+  document.getElementById('percent').innerText = percent + '%';
+}
+
+function markDone() {
+  completed++;
+  updateProgress();
+}
+
+function show(id) {
+  document.querySelectorAll('.container').forEach(el => el.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+
+function goHome() {
+  clearInterval(timerInterval);
+  show('home');
+}
+
+function startCounter(name, target) {
+  count = 0;
+  max = target;
+  show('counterBox');
+  document.getElementById('title').innerText = name;
+  document.getElementById('counter').innerText = `0/${max}`;
+}
+
+function add() {
+  if (count < max) {
+    count++;
+    document.getElementById('counter').innerText = `${count}/${max}`;
+  }
+  if (count === max) finish();
+}
+
+function startTimer(name, seconds) {
+  let time = seconds;
+  show('timerBox');
+  document.getElementById('timerTitle').innerText = name;
+  document.getElementById('timer').innerText = time;
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    time--;
+    document.getElementById('timer').innerText = time;
+    if (time <= 0) {
+      clearInterval(timerInterval);
+      finish();
+    }
+  }, 1000);
+}
+
+function finish() {
+  markDone();
+  show('done');
+  setTimeout(() => show('home'), 1500);
+}
+
+function resetAll() {
+  let confirmReset = confirm("Reset workout?");
+  if (confirmReset) {
+    completed = 0;
+    count = 0;
+    max = 0;
+    clearInterval(timerInterval);
+    updateProgress();
+    show('home');
+  }
+}
+</script>
+
+</body>
+</html>
